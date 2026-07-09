@@ -20,3 +20,9 @@ Pipeline: TF-IDF (50k features, 1-2 grams) + Logistic Regression (balanced class
 **Reflection:** Results are on public research corpora; live institutional traffic would likely show lower performance (domain shift). DistilBERT comparison planned per Implementation Plan.
 **Tools/AI/code sources:** scikit-learn, pandas; training script scaffolded with Claude, reviewed and executed by the team.
 **Next steps:** Wrap model in FastAPI /classify endpoint with explainability.
+
+## Entry 3 — 9 July 2026
+**Work completed:** /classify REST API implemented (FastAPI) exposing the baseline model with explainability — returns label, risk score 0-100, top contributing indicators, and latency (FR-01, FR-02, FR-09). Auto-generated OpenAPI documentation at /docs. /health endpoint added for service monitoring.
+**Testing:** Manual functional test — phishing sample scored ~9X/100 with indicators (urgent, click, verify); legitimate sample scored 0.85/100. Measured latency ~11 ms vs NFR-03 target < 2,000 ms (target met by >100x on CPU hardware). Evidence screenshots in docs/evidence/.
+**Tools/AI/code sources:** FastAPI, uvicorn, joblib; API scaffolded with Claude, reviewed and tested by the team.
+**Next steps:** pytest unit tests for the endpoint; URL verification service.
