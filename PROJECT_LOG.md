@@ -49,3 +49,9 @@ Pipeline: TF-IDF (50k features, 1-2 grams) + Logistic Regression (balanced class
 **Design note:** Append-only ledger semantics — reports are never overwritten; latest verdict governs lookup; chain validation recomputes every hash to prove tamper-evidence, preserving the Part A blockchain design intent without Ethereum (R-01 justification).
 **Tools/AI/code sources:** FastAPI, hashlib, sqlite3; service scaffolded with Claude, executed, demonstrated and verified by the team.
 **Next steps:** Team meeting #1 + Minutes #2; frontend demo page; combined Wk2+3 log.
+
+
+## Entry 8 — 20 July 2026
+**Work completed:** Frontend live demo page implemented (frontend/demo.html): email analysis and URL verification cards calling both services, with verdict badges, risk scores, indicator/finding chips, registry proof display and latency readout. CORS middleware added to both services (permissive for local demo; origin restriction listed for Week 6 security hardening). End-to-end demo verified: phishing 98.07/100 (10.8 ms), legitimate 0.85/100 (7 ms), reported URL returned BLOCKED 75/100 with chain proof (1.4 ms). Evidence in docs/evidence/.
+**Tools/AI/code sources:** Vanilla HTML/CSS/JS (no framework — deliberate for demo reliability; React dashboard to follow); page scaffolded with Claude, tested and verified by the team.
+**Next steps:** Training module skeleton (Dominic); awareness content drafting (Sonu); CORS restriction + security review items (Huzaifa); dashboard charts.
