@@ -44,3 +44,8 @@ Pipeline: TF-IDF (50k features, 1-2 grams) + Logistic Regression (balanced class
 **Next steps:** Team meeting #1 (module allocation → Minutes #2); URL verification service; teammate onboarding commits.
 
 
+## Entry 7 — 20 July 2026
+**Work completed:** URL Verification Service implemented (FR-03, FR-04, refinement R-01): heuristic risk analysis (HTTPS, IP-literal, hyphens, subdomain depth, high-risk TLDs, shorteners, credential-lure keywords), SHA-256 hash-chained append-only registry (SQLite), /verify, /report, /chain/validate and /health endpoints on port 8002. Functional demo: suspicious URL scored 75/100 with 4 findings (~1.4–9.3 ms); after malicious report, verdict flipped to blocked with chain proof; /chain/validate returned valid=true. Tests TU-01..TU-03 added (model-free — CI now executes real assertions). registry.db excluded from version control.
+**Design note:** Append-only ledger semantics — reports are never overwritten; latest verdict governs lookup; chain validation recomputes every hash to prove tamper-evidence, preserving the Part A blockchain design intent without Ethereum (R-01 justification).
+**Tools/AI/code sources:** FastAPI, hashlib, sqlite3; service scaffolded with Claude, executed, demonstrated and verified by the team.
+**Next steps:** Team meeting #1 + Minutes #2; frontend demo page; combined Wk2+3 log.
