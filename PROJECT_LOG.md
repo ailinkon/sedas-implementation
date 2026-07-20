@@ -35,3 +35,12 @@ Pipeline: TF-IDF (50k features, 1-2 grams) + Logistic Regression (balanced class
 **Work completed:** Automated test suite created (TD-01..TD-05) covering health, phishing detection, legitimate pass-through, explainability, and latency — all 5 passing (4.3s). Tests traced to FR-01, FR-02, FR-09, NFR-03. GitHub Actions CI pipeline added: pytest runs on every push/PR. Suite auto-skips on machines without the trained model (model and dataset are intentionally excluded from the repo); CI validates imports and harness.
 **Tools/AI/code sources:** pytest, FastAPI TestClient; suite scaffolded with Claude, executed and verified by the team.
 **Next steps:** Onboard team members to repo; Week 1 LOG submission; URL verification service (Sprint 1).
+
+
+## Entry 6 — 16 July 2026
+**Consultation:** Supervisor consultation held (Minutes #1 in docs/minutes/). Key directives: recent-paper benchmark on a shared dataset; Week 3 = combined Wk2+3 log + two minutes; Week 4 preliminary results; Week 5 individual walk-throughs; Week 6 final results; work split across members; supervisor to be added to GitHub for random checks.
+**Work completed:** Benchmark identified — the dataset's own source paper (Al-Subaiey et al. 2024, CEE 120:109625; TF-IDF+SVM, F1 0.99 on the identical 82.5k corpus). SVM replication implemented and run: F1 0.9916, FP rate 0.0095 (TN=7844 FP=75 FN=70 TP=8509) — matches the published benchmark, validating the pipeline. Benchmark justification document prepared, incl. Part A parameter linkage.
+**Tools/AI/code sources:** scikit-learn LinearSVC; comparison script scaffolded with Claude, executed and verified by the team; benchmark paper verified via web search.
+**Next steps:** Team meeting #1 (module allocation → Minutes #2); URL verification service; teammate onboarding commits.
+
+
