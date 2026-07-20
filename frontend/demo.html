@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SEDAS — Live Demo</title>
+<style>
+  :root { --brand:#1f4e5f; --danger:#c0392b; --safe:#1e8449; --warn:#b9770e; }
+  * { box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+  body { margin:0; background:#f4f7f8; color:#222; }
+  header { background:var(--brand); color:#fff; padding:18px 28px; }
+  header h1 { margin:0; font-size:1.3rem; }
+  header p { margin:2px 0 0; font-size:.8rem; opacity:.85; }
+  main { max-width:880px; margin:28px auto; padding:0 16px; }
+  .card { background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.08);
+          padding:20px 24px; margin-bottom:20px; }
+  h2 { margin:0 0 12px; font-size:1.05rem; color:var(--brand); }
+  textarea, input[type=text] { width:100%; border:1px solid #cfd8dc; border-radius:8px;
+          padding:12px; font-size:.95rem; resize:vertical; }
+  textarea { min-height:130px; }
+  button { margin-top:12px; background:var(--brand); color:#fff; border:0;
+           border-radius:8px; padding:11px 22px; font-size:.95rem; cursor:pointer; }
+  button:hover { filter:brightness(1.1); }
+  .verdict { display:flex; align-items:center; gap:18px; margin-top:16px; }
+  .badge { font-size:1.15rem; font-weight:700; padding:10px 20px; border-radius:8px;
+           color:#fff; }
+  .badge.phishing, .badge.blocked, .badge.suspicious { background:var(--danger); }
+  .badge.legitimate, .badge.trusted, .badge.low_risk { background:var(--safe); }
+  .score { font-size:2rem; font-weight:800; }
+  .chips { margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { background:#fdecea; color:var(--danger); border:1px solid #f5c6c2;
+          border-radius:999px; padding:4px 12px; font-size:.8rem; }
+  .meta { margin-top:10px; font-size:.78rem; color:#607d8b; word-break:break-all; }
+  .error { color:var(--danger); margin-top:10px; font-size:.85rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>SEDAS — Social Engineering Defence &amp; Awareness System</h1>
+  <p>Live demo · AI phishing detection (FR-01, FR-02) · Tamper-evident URL verification (FR-03, FR-04)</p>
+</header>
+<main>
+
+  <div class="card">
+    <h2>1 · Check an email</h2>
+    <textarea id="emailText" placeholder="Paste any email text here..."></textarea>
+    <button onclick="classifyEmail()">Analyse email</button>
+    <div id="emailResult"></div>
+  </div>
+
+  <div class="card">
+    <h2>2 · Verify a URL</h2>
+    <input type="text" id="urlText" placeholder="https://example.com/login">
+    <button onclick="verifyUrl()">Verify URL</button>
+    <div id="urlResult"></div>
+  </div>
+
+</main>
+<script>
+const DETECT = "http://127.0.0.1:8001";
+const URLSVC = "http://127.0.0.1:8002";
+
+async function classifyEmail() {
+  const out = document.getElementById("emailResult");
+  out.innerHTML = "Analysing…";
+  try {
+    const r = await fetch(DETECT + "/classify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: document.getElementById("emailText").value })
+    });
+    const d = await r.json();
+    out.innerHTML = `
+      <div class="verdict">
+        <span class="badge ${d.label}">${d.label.toUpperCase()}</span>
+        <span class="score">${d.risk_score}<small>/100 risk</small></span>
+      </div>
+      <div class="chips">${(d.top_indicators||[]).map(i=>`<span class="chip">${i}</span>`).join("")}</div>
+      <div class="meta">Latency ${d.latency_ms} ms · SEDAS Detection Service v0.1</div>`;
+  } catch (e) {
+    out.innerHTML = `<div class="error">Could not reach the detection service on port 8001 — is it running?</div>`;
+  }
+}
+
+async function verifyUrl() {
+  const out = document.getElementById("urlResult");
+  out.innerHTML = "Verifying…";
+  try {
+    const r = await fetch(URLSVC + "/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: document.getElementById("urlText").value })
+    });
+    const d = await r.json();
+    out.innerHTML = `
+      <div class="verdict">
+        <span class="badge ${d.verdict}">${d.verdict.toUpperCase().replace("_"," ")}</span>
+        <span class="score">${d.heuristic_risk_score}<small>/100 risk</small></span>
+      </div>
+      <div class="chips">${(d.findings||[]).map(f=>`<span class="chip">${f}</span>`).join("")}</div>
+      <div class="meta">Registry: ${d.registry_status}${d.registry_proof ? " · proof " + d.registry_proof.slice(0,16) + "…" : ""} · Latency ${d.latency_ms} ms</div>`;
+  } catch (e) {
+    out.innerHTML = `<div class="error">Could not reach the URL service on port 8002 — is it running?</div>`;
+  }
+}
+</script>
+</body>
+</html>

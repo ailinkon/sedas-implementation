@@ -19,6 +19,9 @@ app = FastAPI(
                 "with the top contributing indicators (FR-01, FR-02).",
     version="0.1.0",
 )
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(CORSMiddleware, allow_origins=["*"],
+                   allow_methods=["*"], allow_headers=["*"])
 
 model = joblib.load(MODEL_PATH)
 vectorizer = model.named_steps["tfidf"]
