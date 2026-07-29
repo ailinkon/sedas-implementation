@@ -3,7 +3,7 @@ SEDAS - Model Comparison vs Published Benchmark
 MIS5320 Part B | Benchmark: Al-Subaiey et al. (2024), CEE 120:109625
 Same dataset (82.5k combined corpus), same TF-IDF features.
 Replicates ALL THREE of the paper's models (SVC, Random Forest, Multinomial NB)
-plus our own extension (Logistic Regression).
+plus our own extensions (Logistic Regression, XGBoost).
 Run: python services/detection/compare_models.py
 """
 
@@ -15,6 +15,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import (accuracy_score, precision_score, recall_score,
                              f1_score, confusion_matrix)
@@ -94,11 +95,19 @@ def main():
         Pipeline([("tfidf", tfidf()), ("clf", MultinomialNB())]),
         X_train, X_test, y_train, y_test, bench_key="Multinomial NB"))
 
-    # ---- Our own extension (not in the paper) ----
+    # ---- Our own extensions (not in the paper) ----
     results.append(evaluate(
         "4. Logistic Regression (SEDAS baseline - not in paper)",
         Pipeline([("tfidf", tfidf()),
                  ("clf", LogisticRegression(max_iter=1000, class_weight="balanced"))]),
+        X_train, X_test, y_train, y_test))
+
+    results.append(evaluate(
+        "5. XGBoost (method NOT used in the paper - our extension)",
+        Pipeline([("tfidf", tfidf()),
+                 ("clf", XGBClassifier(n_estimators=200, max_depth=6,
+                                       learning_rate=0.1, eval_metric="logloss",
+                                       n_jobs=-1, random_state=42))]),
         X_train, X_test, y_train, y_test))
 
     print("\n" + "=" * 60)
