@@ -1,13 +1,13 @@
 """
 SEDAS - DistilBERT Preliminary Comparison
-MIS5320 Part B | Preliminary results per supervisor directive (Week 4):
+MIS5320 Part B | Preliminary results per supervisor directive:
 transformer-based approach as the escalation beyond classical TF-IDF +
 linear methods, which have plateaued near the benchmark paper's own
 ceiling (~99.15-99.17% F1) after preprocessing and ensemble experiments.
 
 NOTE: This is a PRELIMINARY run on a stratified subsample of the full
 82,486-email dataset, due to CPU-only training time constraints. Full-
-dataset fine-tuning is documented as future work (Week 6 final results).
+dataset fine-tuning is documented as future work.
 
 Run: python services/detection/distilbert_preliminary.py
 """

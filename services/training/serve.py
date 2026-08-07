@@ -3,9 +3,7 @@ SEDAS - Awareness Training Service
 MIS5320 Part B | FR-05 (persona-based micro-lessons), FR-06 (progress tracking)
 Runs on port 8003.
 
-OWNERSHIP NOTE:
-  Scaffold (schema, seeding, endpoints, persistence): A. Islam
-  score_attempt() + next_lesson_for() scoring engine: D. Kipchirchir  <-- see TODO
+Scoring engine: score_attempt(), update_risk(), risk_band(), next_lesson_for()
 """
 
 import sqlite3
@@ -42,54 +40,72 @@ def now():
 
 
 # ---------------------------------------------------------------
-# SCORING ENGINE — owner: Dominic Kipchirchir
+# SCORING ENGINE
 #
-# SPEC (implement below, replacing the TODO):
-#
-# score_attempt(correct_cnt, answered) -> float
-#   Return the percentage score for one quiz attempt, 0.0-100.0,
-#   rounded to 1 decimal place. If answered == 0, return 0.0
-#   (guard against division by zero).
-#
-# update_risk(current_risk, score_pct) -> float
-#   Recalculate a user's risk score after an attempt, using an
-#   exponentially weighted moving average so recent behaviour counts
-#   more than old behaviour:
-#       new_risk = (1 - ALPHA) * current_risk + ALPHA * (100 - score_pct)
-#   with ALPHA = 0.4. Clamp the result to 0.0-100.0 and round to 1dp.
-#   Rationale: a high quiz score should LOWER risk, and one bad attempt
-#   should not erase a long good history.
-#
-# risk_band(risk) -> str
-#   "low" if risk < 33, "medium" if risk < 66, otherwise "high".
-#
-# next_lesson_for(persona, risk, completed_codes, all_lessons) -> dict | None
-#   Choose the next lesson: filter all_lessons to those matching the
-#   user's persona (or persona 'all') and NOT already in completed_codes;
-#   target difficulty 1 for "low" risk users... wait, higher risk needs
-#   easier reinforcement first: difficulty 1 for "high" risk,
-#   2 for "medium", 3 for "low". If nothing matches that difficulty,
-#   fall back to any remaining eligible lesson. Return the lesson dict
-#   or None if all are completed.
+# ALPHA controls how strongly the most recent attempt influences a
+# user's risk score relative to their history. At 0.4, recent behaviour
+# matters substantially but a single poor attempt cannot erase a
+# sustained good record.
 # ---------------------------------------------------------------
 
 ALPHA = 0.4
 
 
 def score_attempt(correct_cnt: int, answered: int) -> float:
-    raise NotImplementedError("TODO(dominic): implement per spec above")
+    """Percentage score for one attempt, 0.0-100.0, guarded against
+    division by zero when no questions were answered."""
+    if answered == 0:
+        return 0.0
+    return round((correct_cnt / answered) * 100, 1)
 
 
 def update_risk(current_risk: float, score_pct: float) -> float:
-    raise NotImplementedError("TODO(dominic): implement per spec above")
+    """Exponentially weighted moving average of risk.
+
+    A high quiz score lowers risk; a low score raises it. The result is
+    clamped to the 0-100 range and rounded to one decimal place.
+    """
+    new_risk = (1 - ALPHA) * current_risk + ALPHA * (100 - score_pct)
+    return round(max(0.0, min(100.0, new_risk)), 1)
 
 
 def risk_band(risk: float) -> str:
-    raise NotImplementedError("TODO(dominic): implement per spec above")
+    """Map a numeric risk score onto a coarse band used for lesson
+    selection and dashboard reporting."""
+    if risk < 33:
+        return "low"
+    if risk < 66:
+        return "medium"
+    return "high"
 
 
 def next_lesson_for(persona, risk, completed_codes, all_lessons):
-    raise NotImplementedError("TODO(dominic): implement per spec above")
+    """Choose the next lesson for a user, or None if all are completed.
+
+    Difficulty is inverted against risk deliberately: a high-risk user
+    receives foundational material first, because reinforcing basics is
+    more effective than escalating difficulty for someone who is
+    struggling. A low-risk user receives advanced material to remain
+    challenged.
+    """
+    eligible = [
+        lesson for lesson in all_lessons
+        if lesson["persona"] in (persona, "all")
+        and lesson["code"] not in completed_codes
+    ]
+    if not eligible:
+        return None
+
+    band = risk_band(risk)
+    target_difficulty = {"high": 1, "medium": 2, "low": 3}[band]
+
+    preferred = [l for l in eligible if l["difficulty"] == target_difficulty]
+    if preferred:
+        return preferred[0]
+
+    # Fall back to any remaining eligible lesson so the user is never
+    # left without content while lessons remain unseen.
+    return eligible[0]
 
 
 # ---------------------------------------------------------------
