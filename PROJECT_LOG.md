@@ -57,14 +57,14 @@ Pipeline: TF-IDF (50k features, 1-2 grams) + Logistic Regression (balanced class
 **Next steps:** Training module skeleton (Dominic); awareness content drafting (Sonu); CORS restriction + security review items (Huzaifa); dashboard charts.
 
 
-## Entry 9 — [today's date]
+## Entry 9 — 27 July 2026
 **Supervisor directive:** Run ALL methods used in benchmark paper [41], not just one, then explore methods beyond it (e.g. XGBoost). Web frontend explicitly does not count toward marks — real ML execution and explanation is the priority. Every team member must be able to run and explain the model execution, not just the theory.
 **Work completed:** Replicated all three of [41]'s models on the identical dataset: SVC/LinearSVC (F1 99.16%, paper 99.0%, +0.16), Random Forest (F1 98.71%, paper 98.0%, +0.71), Multinomial NB (F1 97.47%, paper 98.0%, -0.53). SEDAS Logistic Regression baseline (not in paper): F1 98.65%.
 **Analysis:** SVC is the strongest model for both the paper and SEDAS, consistent with paper's own conclusion. MNB underperforms on recall (95.93% vs ~98-99% for others, 349 false negatives) - independence assumption between features likely too strong for this text data. RF and SVC both exceed the paper, suggesting our TF-IDF configuration (50k features, 1-2 grams, balanced class weights) is at least as effective as the original.
 **Next steps:** XGBoost comparison (method beyond the paper); team teach-in session so all members can run and explain compare_models.py; Minutes #3 for this consultation.
 
 
-## Entry 10 — [today's date]
+## Entry 10 — 03 August 2026
 **Work completed:** Added XGBoost (200 estimators, max_depth 6) as the "beyond the paper" method per supervisor directive. Full 5-model comparison complete on identical 82,486-email corpus: SVC F1 99.16% (paper 99.0%, +0.16), Random Forest F1 98.71% (paper 98.0%, +0.71), Logistic Regression F1 98.65% (not in paper), XGBoost F1 97.56% (not in paper), Multinomial NB F1 97.47% (paper 98.0%, -0.53).
 **Analysis:** XGBoost did not outperform the linear/paper methods. Its false-positive count (324) is markedly higher than SVC (75) or Random Forest (103) despite comparable recall — likely overfitting on the high-dimensional sparse TF-IDF feature space (50,000 mostly-zero features) without hyperparameter tuning, whereas linear methods (SVC, Logistic Regression) handle sparse text features more naturally. This is a legitimate negative result: exploring beyond the benchmark does not guarantee improvement, and the paper's choice of SVM as best model is corroborated rather than beaten.
 **Tools/AI/code sources:** xgboost, scikit-learn; comparison script extended with Claude, executed and verified by the team.
